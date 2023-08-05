@@ -1,0 +1,32 @@
+(Comment out MigusMovement's input for now)
+
+MigusBrain: 
+* Default: stands around for a random period of time
+* Wander: chooses a random location, walks there (rotation decided by brain after destination reached).
+** Can only be interrupted from this state if she notices a new leek (and doesn't ignore it).
+** Wandering slightly increases tired gauge
+* Lazy: sits on floor for a random period of time, facing a rotation
+** Being lazy decreases her tired meter
+** Chance of being lazy + time spent in lazy state depends on TiredPercentage. Migus may stay in Lazy state for longer if she is hungry + there are no leeks.
+* Dance: picks a random song and dances. Chance of dancing increasing the less tired + hungry she is.
+** Dancing increases her tired gauge.
+* Curious: walks toward, then around a leek for a random time. Activated when Migus is not hungry and either a leek is placed, or she wanders near an already placed leek.
+** If Migus is not hungry + in her "Lazy" state, she will not enter her "Curious" state.
+** At the end of the "Curious" state, a random check is done to decide if Migus eats the leek or not. The chance of her eating is 0.45 * (1 + HungerPercentage)
+** If Migus is not hungry, there is a random chance she will look at the leek but not walk towards it. This is determined by how many leeks were placed down in the last 3 minutes, Math.Min(leekList.Count - 5, 0) * 0.09. When this formula returns >= 1.0, Migus will no longer turn towards new leeks, completely ignoring them until the player stops placing so many leeks.
+* Hungry: walks toward leek, contemplating for a short random time, then eats leek. Activated when Migus is hungry and either a leek is placed, or she wanders near an already placed leek.
+** Eating leeks decreases her hunger meter.
+** The hungrier Migus is, the less time she waits before eating.
+** If hunger is below 30%, there is a 0% chance she will enter her "Hungry" phase when she sees a leek.
+** If hunger is above 80%, there is a 100% chance she will enter her "Hungry" phase when she sees a leek.
+** Between 30% and 80%, there is a HungerPercentage * 0.9 chance she will enter her "Hungry" phase when she sees a leek.
+* Hunger gauge increases gradually over time. Hunger gauge increases a bit more every time Migus notices a new leek.
+
+MigusBody: Only controls movement, rotation and animation of Migus (not monobehavior)
+* Gets new destinations from brain
+* Tells the brain when Migus has reached her current destination
+* Changes migus animation based on state
+* Moves head to look at leek if not curious + hungry and isn't fully ignoring leeks
+* Doen't use MonoBehavior calls like Update()!!!!
+
+MBFormulas: Static class with methods that calculate chances for each behavior/state occuring
